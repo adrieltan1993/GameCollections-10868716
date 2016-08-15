@@ -10,23 +10,31 @@ namespace Sudoku
     {
         static void Main(string[] args)
         {
-            int[][] puzzleInput = new int[9][];
-            for (int i = 0; i < 9; i++)
+            bool isContinue = false;
+
+            do
             {
-                Console.Write("Enter row {0}: ", (i + 1));
-                puzzleInput[i] = new int[9];
-                int input = Int32.Parse(Console.ReadLine());
-                for (int j = 8; j >= 0; j--)
+                int[][] puzzleInput = new int[9][];
+                for (int i = 0; i < 9; i++)
                 {
-                    int digit = input % 10;
-                    input = input / 10;
-                    puzzleInput[i][j] = digit;
+                    Console.Write("Enter row {0}: ", (i + 1));
+                    puzzleInput[i] = new int[9];
+                    int input = Int32.Parse(Console.ReadLine());
+                    for (int j = 8; j >= 0; j--)
+                    {
+                        int digit = input % 10;
+                        input = input / 10;
+                        puzzleInput[i][j] = digit;
+                    }
                 }
-            }
-            Console.WriteLine();
-            SudokuPuzzle game = new SudokuPuzzle(puzzleInput);
-            Console.WriteLine();
-            game.printPuzzle();
+                Console.WriteLine();
+                SudokuPuzzle game = new SudokuPuzzle(puzzleInput);
+                Console.WriteLine();
+                game.solve();
+                game.printPuzzle();
+
+                isContinue = (Int32.Parse(Console.ReadLine()) == 1);
+            } while (isContinue);
 
             Console.ReadKey();
         }

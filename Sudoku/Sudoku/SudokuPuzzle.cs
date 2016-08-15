@@ -126,7 +126,7 @@ namespace Sudoku
             return sc.checkPuzzle(this.getPuzzle());
         }
 
-        private int[][] getPuzzle()
+        public int[][] getPuzzle()
         {
             int[][] puzzle = new int[9][];
             for (int r = 0; r < 9; r++)
@@ -138,6 +138,12 @@ namespace Sudoku
                 }
             }
             return puzzle;
+        }
+
+        public void solve()
+        {
+            SudokuSolver sv = new SudokuSolver(this);
+            sv.solve();
         }
     }
 }

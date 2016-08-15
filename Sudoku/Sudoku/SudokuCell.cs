@@ -10,16 +10,21 @@ namespace Sudoku
     {
         int _digit = 0;
         bool[] _notes = new bool[] { false, false, false, false, false, false, false, false, false };
+        bool _isLocked;
 
-        public SudokuCell(int digit, bool isDefault)
+        public SudokuCell(int digit, bool isLocked)
         {
             _digit = digit;
+            _isLocked = isLocked;
         }
 
         public void setCell(int digit)
         {
-            _digit = digit;
-            this.deleteAllNotes();
+            if(!_isLocked)
+            {
+                _digit = digit;
+                this.deleteAllNotes();
+            }
         }
 
         public int getCell()
@@ -29,31 +34,47 @@ namespace Sudoku
 
         public void setNote(int noteDigit)
         {
-            _notes[noteDigit - 1] = true;
+            if(!_isLocked)
+            {
+                _notes[noteDigit - 1] = true;
+            }
         }
 
         public void deleteNote(int noteDigit)
         {
-            _notes[noteDigit - 1] = false;
+            if (!_isLocked)
+            {
+                _notes[noteDigit - 1] = false;
+            }
         }
 
         public void deleteAllNotes()
         {
-            _notes = new bool[] { false, false, false, false, false, false, false, false, false };
+            if (!_isLocked)
+            {
+                _notes = new bool[] { false, false, false, false, false, false, false, false, false };
+            }
         }
 
         public int[] getNotes()
         {
-            List<int> notes = new List<int>();
-            for (int i = 0; i < 9; i++)
+            if (!_isLocked && (_digit == 0))
             {
-                if (_notes[i])
+                List<int> notes = new List<int>();
+                for (int i = 0; i < 9; i++)
                 {
-                    notes.Add(i + 1);
+                    if (_notes[i])
+                    {
+                        notes.Add(i + 1);
+                    }
                 }
-            }
 
-            return notes.ToArray();
+                return notes.ToArray();
+            }
+            else
+            {
+                return new int[] { 0 };
+            }
         }
     }
 }

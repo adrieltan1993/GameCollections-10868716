@@ -9,6 +9,7 @@ namespace Sudoku
     class SudokuSolver
     {
         private SudokuPuzzle _sudoku;
+        private bool _hasChanged;
 
         public SudokuSolver(SudokuPuzzle sudoku)
         {
@@ -19,8 +20,14 @@ namespace Sudoku
         {
             while (!_sudoku.checkCompleted())
             {
+                _hasChanged = false;
                 setNotes();
                 setCells();
+                if (!_hasChanged)
+                {
+                    setNotesAdvanced();
+                    setCells();
+                }
             }
         }
 
@@ -45,10 +52,24 @@ namespace Sudoku
                         foreach (int note in notes)
                         {
                             _sudoku.setNoteInCell(r, c, note);
+                            _hasChanged = true;
                         }
                     }
 
                 }
+            }
+        }
+
+        private void setNotesAdvanced()
+        {
+            for (int i = 1; i <= 9; i++)
+            {
+                int[][] rowNotes = getRowNotes(i);
+                findHiddenSingle(rowNotes, i, "row");
+                int[][] colNotes = getColNotes(i);
+                findHiddenSingle(colNotes, i, "col");
+                int[][] boxNotes = getBoxNotes(i);
+                findHiddenSingle(boxNotes, i, "box");
             }
         }
 
@@ -58,13 +79,10 @@ namespace Sudoku
             {
                 for (int c = 1; c <= 9; c++)
                 {
-                    if (_sudoku.getCell(r, c) == 0)
+                    int[] notes = _sudoku.getNoteFromCell(r, c);
+                    if ((notes.Length == 1) && (notes[0] != 0))
                     {
-                        int[] notes = _sudoku.getNoteFromCell(r, c);
-                        if (notes.Length == 1)
-                        {
-                            _sudoku.setCell(r, c, notes[0]);
-                        }
+                        _sudoku.setCell(r, c, notes[0]);
                     }
                 }
             }
@@ -99,6 +117,83 @@ namespace Sudoku
                 }
             }
             return box;
+        }
+
+        private int[][] getRowNotes(int r)
+        {
+            int[][] rowNotes = new int[9][];
+
+            for (int c = 1; c <= 9; c++)
+            {
+                rowNotes[c - 1] = _sudoku.getNoteFromCell(r, c);
+            }
+            return rowNotes;
+        }
+
+        private int[][] getColNotes(int c)
+        {
+            int[][] colNotes = new int[9][];
+
+            for (int r = 1; r <= 9; r++)
+            {
+                colNotes[r - 1] = _sudoku.getNoteFromCell(r, c);
+            }
+            return colNotes;
+        }
+
+        private int[][] getBoxNotes(int boxNum)
+        {
+            int[][] boxNotes = new int[9][];
+            int row = (boxNum - 1) / 3 * 3 + 1;
+            int col = (boxNum - 1) % 3 * 3 + 1;
+
+            for (int r = row; r < row + 3; r++)
+            {
+                for (int c = col; c < col + 3; c++)
+                {
+                    boxNotes[(r - row) * 3 + (c - col)] = _sudoku.getNoteFromCell(r, c);
+                }
+            }
+
+            return boxNotes;
+        }
+
+        private void findHiddenSingle(int[][] notes, int index, String type)
+        {
+            int[] allNotes = notes.SelectMany(i => i).Where(n => n != 0).OrderBy(n => n).ToArray();
+            int[] uniqueArr = allNotes.Distinct().ToArray();
+
+            foreach (int num in uniqueArr)
+            {
+                int count = allNotes.Where(n => n == num).Count();
+                if (count == 1)
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (notes[i].Contains(num))
+                        {
+                            switch (type)
+                            {
+                                case ("row"):
+                                    _sudoku.deleteAllNotesInCell(index, i + 1);
+                                    _sudoku.setNoteInCell(index, i + 1, num);
+                                    Console.WriteLine("<ROW> Hidden single in row {0}, col {1}, num {2}", index, i + 1, num);
+                                    break;
+                                case ("col"):
+                                    _sudoku.deleteAllNotesInCell(i + 1, index);
+                                    _sudoku.setNoteInCell(i + 1, index, num);
+                                    Console.WriteLine("<COL> Hidden single in row {0}, col {1}, num {2}", i + 1, index, num);
+                                    break;
+                                case ("box"):
+                                    _sudoku.deleteAllNotesInCell(((index - 1) / 3 * 3 + 1) + i / 3, ((index - 1) % 3 * 3 + 1) + i % 3);
+                                    _sudoku.setNoteInCell(((index - 1) / 3 * 3 + 1) + i / 3, ((index - 1) % 3 * 3 + 1) + i % 3, num);
+                                    Console.WriteLine("<BOX> Hidden single in row {0}, col {1}, num {2}", ((index - 1) / 3 * 3 + 1) + i / 3, ((index - 1) % 3 * 3 + 1) + i % 3, num);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

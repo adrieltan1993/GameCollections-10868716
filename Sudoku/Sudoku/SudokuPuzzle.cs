@@ -84,5 +84,40 @@ namespace Sudoku
         {
             return ((num >= 1) && (num <= 9));
         }
+
+        public void printPuzzle()
+        {
+            for (int r = 1; r <= 9; r++)
+            {
+                for (int c = 1; c <= 9; c++)
+                {
+                    Console.Write(this.getCell(r, c));
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
+        public void printNotes()
+        {
+            for (int r = 1; r <= 9; r++)
+            {
+                for (int c = 1; c <= 9; c++)
+                {
+                    if (this.getCell(r, c) == 0)
+                    {
+                        int[] notesArr = this.getNoteFromCell(r, c);
+                        Console.Write("row = {0}, col = {1}: ", r, c);
+                        foreach (int note in notesArr)
+                        {
+                            Console.Write("{0} ", note);
+                        }
+                        Console.WriteLine();
+                    }
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
     }
 }

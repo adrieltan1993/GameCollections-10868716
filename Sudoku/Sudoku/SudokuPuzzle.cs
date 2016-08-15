@@ -119,5 +119,25 @@ namespace Sudoku
             }
             Console.WriteLine();
         }
+
+        public bool checkCompleted()
+        {
+            SudokuChecker sc = new SudokuChecker();
+            return sc.checkPuzzle(this.getPuzzle());
+        }
+
+        private int[][] getPuzzle()
+        {
+            int[][] puzzle = new int[9][];
+            for (int r = 0; r < 9; r++)
+            {
+                puzzle[r] = new int[9];
+                for (int c = 0; c < 9; c++)
+                {
+                    puzzle[r][c] = this.getCell(r + 1, c + 1);
+                }
+            }
+            return puzzle;
+        }
     }
 }

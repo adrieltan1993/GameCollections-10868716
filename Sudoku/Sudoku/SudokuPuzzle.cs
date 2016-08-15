@@ -47,6 +47,39 @@ namespace Sudoku
             return 0;
         }
 
+        public void setNoteInCell(int row, int col, int note)
+        {
+            if (validateDigit(row) && validateDigit(col) && validateDigit(note))
+            {
+                _puzzle[row - 1][col - 1].setNote(note);
+            }
+        }
+
+        public void deleteNoteInCell(int row, int col, int note)
+        {
+            if (validateDigit(row) && validateDigit(col) && validateDigit(note))
+            {
+                _puzzle[row - 1][col - 1].deleteNote(note);
+            }
+        }
+
+        public void deleteAllNotesInCell(int row, int col)
+        {
+            if (validateDigit(row) && validateDigit(col))
+            {
+                _puzzle[row - 1][col - 1].deleteAllNotes();
+            }
+        }
+
+        public int[] getNoteFromCell(int row, int col)
+        {
+            if (validateDigit(row) && validateDigit(col))
+            {
+                return _puzzle[row - 1][col - 1].getNotes();
+            }
+            return null;
+        }
+
         private bool validateDigit(int num)
         {
             return ((num >= 1) && (num <= 9));

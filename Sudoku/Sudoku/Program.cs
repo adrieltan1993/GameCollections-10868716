@@ -33,6 +33,7 @@ namespace Sudoku
                 game.solve();
                 game.printPuzzle();
 
+                Console.WriteLine("Game completed");
                 isContinue = (Int32.Parse(Console.ReadLine()) == 1);
             } while (isContinue);
 

@@ -25,9 +25,13 @@ namespace Sudoku
                 setCells();
                 if (!_hasChanged)
                 {
-                    setNotesAdvanced();
+                    setNotesHiddenSingles();
+                    setCells();
+                    setNotesLockedCandidates();
                     setCells();
                 }
+                //_sudoku.printPuzzle();
+                //_sudoku.printNotes();
             }
         }
 
@@ -52,7 +56,6 @@ namespace Sudoku
                         foreach (int note in notes)
                         {
                             _sudoku.setNoteInCell(r, c, note);
-                            _hasChanged = true;
                         }
                     }
 
@@ -60,7 +63,7 @@ namespace Sudoku
             }
         }
 
-        private void setNotesAdvanced()
+        private void setNotesHiddenSingles()
         {
             for (int i = 1; i <= 9; i++)
             {
@@ -70,6 +73,15 @@ namespace Sudoku
                 findHiddenSingle(colNotes, i, "col");
                 int[][] boxNotes = getBoxNotes(i);
                 findHiddenSingle(boxNotes, i, "box");
+            }
+        }
+
+        private void setNotesLockedCandidates()
+        {
+            for (int i = 1; i <= 9; i++)
+            {
+                int[][] boxNotes = getBoxNotes(i);
+                findLockedCandidates(boxNotes, i);
             }
         }
 
@@ -83,6 +95,7 @@ namespace Sudoku
                     if ((notes.Length == 1) && (notes[0] != 0))
                     {
                         _sudoku.setCell(r, c, notes[0]);
+                        _hasChanged = true;
                     }
                 }
             }
@@ -195,5 +208,74 @@ namespace Sudoku
                 }
             }
         }
+
+        private void findLockedCandidates(int[][] notes, int boxNum)
+        {
+            int baseRow = (boxNum - 1) / 3 * 3 + 1;
+            int baseCol = (boxNum - 1) % 3 * 3 + 1;
+
+            findLockedCandidatesHorizontal(notes, baseRow, baseCol);
+            findLockedCandidatesVertical(notes, baseRow, baseCol);
+        }
+
+        private void findLockedCandidatesHorizontal(int[][] notes, int baseRow, int baseCol)
+        {
+            int[][] horizontals = new int[3][];
+
+            for(int i = 0; i < 3; i++)
+            {
+                int index = i * 3;
+                horizontals[i] = notes[index].Concat(notes[index + 1].Concat(notes[index + 2])).Distinct().ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = horizontals[i].Except(horizontals[(i + 1) % 3].Concat(horizontals[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    foreach(int num in uniqueArr)
+                    {
+                        for(int c = 1; c <= 9; c++)
+                        {
+                            if(!((c == baseCol) || (c == baseCol + 1) || (c == baseCol + 2)))
+                            {
+                                _sudoku.deleteNoteInCell(baseRow + i, c, num);
+                            }
+                        }
+                        //Console.WriteLine("Locked Candidate {0} in row {1}", num, baseRow + i);
+                    }
+                }
+            }
+        }
+
+        private void findLockedCandidatesVertical(int[][] notes, int baseRow, int baseCol)
+        {
+            int[][] verticals = new int[3][];
+
+            for (int i = 0; i < 3; i++)
+            {
+                verticals[i] = notes[i].Concat(notes[i + 3].Concat(notes[i + 6])).Distinct().ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = verticals[i].Except(verticals[(i + 1) % 3].Concat(verticals[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    foreach (int num in uniqueArr)
+                    {
+                        for (int r = 1; r <= 9; r++)
+                        {
+                            if (!((r == baseRow) || (r == baseRow + 1) || (r == baseRow + 2)))
+                            {
+                                _sudoku.deleteNoteInCell(r, baseCol + i, num);
+                            }
+                        }
+                        //Console.WriteLine("Locked Candidate {0} in col {1}", num, baseCol + i);
+                    }
+                }
+            }
+        }
+
     }
 }

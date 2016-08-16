@@ -49,6 +49,7 @@
     <Compile Include="SudokuChecker.cs" />
     <Compile Include="SudokuPuzzle.cs" />
     <Compile Include="SudokuSolver.cs" />
+    <Compile Include="SudokuSolver2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

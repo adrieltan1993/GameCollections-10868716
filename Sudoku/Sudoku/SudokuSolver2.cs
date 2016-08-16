@@ -32,14 +32,20 @@ namespace Sudoku
                 _hasChanged = false;
                 setNotes();
                 setCells();
-                if(!_hasChanged)
+                if (!_hasChanged)
                 {
-                    setNotesHiddenSingles();
                     Console.WriteLine("Hidden Single");
+                    setNotesHiddenSingles();
+                    setCells();
+                }
+                if (!_hasChanged)
+                {
+                    Console.WriteLine("Locked Candidate");
+                    setNotesLockedCandidates();
                     setCells();
                 }
                 //_sudoku.printNotes();
-                _sudoku.printPuzzle();
+                //_sudoku.printPuzzle();
                 }
         }
 
@@ -98,6 +104,81 @@ namespace Sudoku
                             cellArr[i].deleteAllNotes();
                             cellArr[i].setNote(num);
                             break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void setNotesLockedCandidates()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                findLockedCandidates(_cellBoxArr[i], i);
+            }
+        }
+
+        private void findLockedCandidates(SudokuCell[] cellArr, int boxNum)
+        {
+            int[][] notes = getNotes(cellArr);
+            int baseRow = boxNum / 3 * 3;
+            int baseCol = boxNum % 3 * 3;
+
+            findLockedCandidatesHorizontal(notes, baseRow, baseCol);
+            findLockedCandidatesVertical(notes, baseRow, baseCol);
+        }
+
+        private void findLockedCandidatesHorizontal(int[][] notes, int baseRow, int baseCol)
+        {
+            int[][] horizontals = new int[3][];
+
+            for (int i = 0; i < 3; i++)
+            {
+                int index = i * 3;
+                horizontals[i] = notes[index].Concat(notes[index + 1].Concat(notes[index + 2])).Except(new int[] { 0 }).Distinct().ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = horizontals[i].Except(horizontals[(i + 1) % 3].Concat(horizontals[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    foreach (int num in uniqueArr)
+                    {
+                        for (int c = 0; c < 9; c++)
+                        {
+                            if (!((c == baseCol) || (c == baseCol + 1) || (c == baseCol + 2)))
+                            {
+                                _sudokuCells[baseRow + i][c].deleteNote(num);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void findLockedCandidatesVertical(int[][] notes, int baseRow, int baseCol)
+        {
+            int[][] verticals = new int[3][];
+
+            for (int i = 0; i < 3; i++)
+            {
+                verticals[i] = notes[i].Concat(notes[i + 3].Concat(notes[i + 6])).Distinct().Except(new int[] { 0 }).ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = verticals[i].Except(verticals[(i + 1) % 3].Concat(verticals[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    foreach (int num in uniqueArr)
+                    {
+                        for (int r = 0; r < 9; r++)
+                        {
+                            if (!((r == baseRow) || (r == baseRow + 1) || (r == baseRow + 2)))
+                            {
+                                _sudokuCells[r][baseCol + i].deleteNote(num);
+                            }
                         }
                     }
                 }
@@ -179,6 +260,16 @@ namespace Sudoku
                 boxNotes[i] = _cellBoxArr[boxIndex][i].getNotes();
             }
             return boxNotes;
+        }
+
+        private int[][] getNotes(SudokuCell[] cellArr)
+        {
+            int[][] notes = new int[9][];
+            for (int i = 0; i < 9; i++)
+            {
+                notes[i] = cellArr[i].getNotes();
+            }
+            return notes;
         }
 
         private void getCellRowArr()

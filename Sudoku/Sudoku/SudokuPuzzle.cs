@@ -142,7 +142,10 @@ namespace Sudoku
 
         public void solve()
         {
-            SudokuSolver sv = new SudokuSolver(this);
+            //SudokuSolver sv = new SudokuSolver(this);
+            //sv.solve();
+
+            SudokuSolver2 sv = new SudokuSolver2(this, _puzzle);
             sv.solve();
         }
     }

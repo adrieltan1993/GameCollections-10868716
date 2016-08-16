@@ -27,26 +27,42 @@ namespace Sudoku
 
         public void solve()
         {
+            setNotes();
+            setCells();
             while (!_sudoku.checkCompleted())
             {
                 _hasChanged = false;
-                setNotes();
+                updateNotes();
                 setCells();
+
                 if (!_hasChanged)
                 {
-                    Console.WriteLine("Hidden Single");
                     setNotesHiddenSingles();
-                    setCells();
-                }
-                if (!_hasChanged)
-                {
-                    Console.WriteLine("Locked Candidate");
                     setNotesLockedCandidates();
+                    setNotesNakedPair();
                     setCells();
                 }
-                //_sudoku.printNotes();
-                //_sudoku.printPuzzle();
-                }
+                //if (!_hasChanged)
+                //{
+                //    Console.WriteLine("Hidden Single");
+                //    setNotesHiddenSingles();
+                //    setCells();
+                //}
+                //if (!_hasChanged)
+                //{
+                //    Console.WriteLine("Locked Candidate");
+                //    setNotesLockedCandidates();
+                //    setCells();
+                //}
+                //if (!_hasChanged)
+                //{
+                //    //_sudoku.printNotes();
+                //    Console.WriteLine("Naked Pair");
+                //    setNotesNakedPair();
+                //    setCells();
+                //    //_sudoku.printNotes();
+                //}
+            }
         }
 
         private void setNotes()
@@ -67,6 +83,26 @@ namespace Sudoku
                     foreach (int note in notes)
                     {
                         _sudokuCells[r][c].setNote(note);
+                    }
+                }
+            }
+        }
+
+        private void updateNotes()
+        {
+            for (int r = 0; r < 9; r++)
+            {
+                for (int c = 0; c < 9; c++)
+                {
+                    int[] row = getRow(r);
+                    int[] col = getCol(c);
+                    int[] box = getBox(r, c);
+
+                    var line = row.Concat(col.Concat(box)).Distinct().Except(new int[] { 0 }).ToArray();
+
+                    foreach (int num in line)
+                    {
+                        _sudokuCells[r][c].deleteNote(num);
                     }
                 }
             }
@@ -179,6 +215,45 @@ namespace Sudoku
                             {
                                 _sudokuCells[r][baseCol + i].deleteNote(num);
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void setNotesNakedPair()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                findNakedPair(_cellRowArr[i]);
+                findNakedPair(_cellColArr[i]);
+                findNakedPair(_cellBoxArr[i]);
+            }
+        }
+
+        private void findNakedPair(SudokuCell[] cellArr)
+        {
+            int[][] notes = getNotes(cellArr);
+
+            for (int i = 0; i < 8; i++)
+            {
+                if (notes[i].Count() == 2)
+                {
+                    for (int j = i + 1; j < 9; j++)
+                    {
+                        if ((notes[j].Count() == 2) && (notes[i].SequenceEqual(notes[j])))
+                        {
+                            for (int index = 0; index < 9; index++)
+                            {
+                                if ((index != i) && (index != j))
+                                {
+                                    foreach (int num in notes[i])
+                                    {
+                                        cellArr[index].deleteNote(num);
+                                    }
+                                }
+                            }
+                            break;
                         }
                     }
                 }

@@ -27,9 +27,14 @@ namespace Sudoku
                 {
                     setNotesHiddenSingles();
                     setCells();
+                }
+                if(!_hasChanged)
+                {
                     setNotesLockedCandidates();
                     setCells();
                 }
+
+                //Console.WriteLine("Next Iteration");
                 //_sudoku.printPuzzle();
                 //_sudoku.printNotes();
             }
@@ -242,7 +247,7 @@ namespace Sudoku
                                 _sudoku.deleteNoteInCell(baseRow + i, c, num);
                             }
                         }
-                        //Console.WriteLine("Locked Candidate {0} in row {1}", num, baseRow + i);
+                        Console.WriteLine("Locked Candidate {0} in row {1}", num, baseRow + i);
                     }
                 }
             }
@@ -271,7 +276,7 @@ namespace Sudoku
                                 _sudoku.deleteNoteInCell(r, baseCol + i, num);
                             }
                         }
-                        //Console.WriteLine("Locked Candidate {0} in col {1}", num, baseCol + i);
+                        Console.WriteLine("Locked Candidate {0} in col {1}", num, baseCol + i);
                     }
                 }
             }

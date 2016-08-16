@@ -29,11 +29,18 @@ namespace Sudoku
         {
             while (!_sudoku.checkCompleted())
             {
+                _hasChanged = false;
                 setNotes();
-                //_sudoku.printNotes();
                 setCells();
+                if(!_hasChanged)
+                {
+                    setNotesHiddenSingles();
+                    Console.WriteLine("Hidden Single");
+                    setCells();
+                }
+                //_sudoku.printNotes();
                 _sudoku.printPuzzle();
-            }
+                }
         }
 
         private void setNotes()
@@ -59,6 +66,44 @@ namespace Sudoku
             }
         }
 
+        private void setNotesHiddenSingles()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                findHiddenSingle(_cellRowArr[i], i);
+                findHiddenSingle(_cellColArr[i], i);
+                findHiddenSingle(_cellBoxArr[i], i);
+            }
+        }
+
+        private void findHiddenSingle(SudokuCell[] cellArr, int index)
+        {
+            int[][] notes = new int[9][];
+            for(int i = 0; i < 9; i++)
+            {
+                notes[i] = cellArr[i].getNotes();
+            }
+            int[] allNotes = notes.SelectMany(i => i).Where(n => n != 0).OrderBy(n => n).ToArray();
+            int[] uniqueArr = allNotes.Distinct().ToArray();
+
+            foreach (int num in uniqueArr)
+            {
+                int count = allNotes.Where(n => n == num).Count();
+                if (count == 1)
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (notes[i].Contains(num))
+                        {
+                            cellArr[i].deleteAllNotes();
+                            cellArr[i].setNote(num);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         private void setCells()
         {
             for (int r = 0; r < 9; r++)
@@ -69,6 +114,7 @@ namespace Sudoku
                     if ((notes.Length == 1) && (notes[0] != 0))
                     {
                         _sudokuCells[r][c].setCell(notes[0]);
+                        _hasChanged = true;
                     }
                 }
             }
@@ -84,6 +130,16 @@ namespace Sudoku
             return row;
         }
 
+        private int[][] getRowNotes(int r)
+        {
+            int[][] rowNotes = new int[9][];
+            for (int i = 0; i < 9; i++)
+            {
+                rowNotes[i] = _cellRowArr[r][i].getNotes();
+            }
+            return rowNotes;
+        }
+
         private int[] getCol(int c)
         {
             int[] col = new int[9];
@@ -92,6 +148,16 @@ namespace Sudoku
                 col[i] = _cellColArr[c][i].getCell();
             }
             return col;
+        }
+
+        private int[][] getColNotes(int c)
+        {
+            int[][] colNotes = new int[9][];
+            for (int i = 0; i < 9; i++)
+            {
+                colNotes[i] = _cellColArr[c][i].getNotes();
+            }
+            return colNotes;
         }
 
         private int[] getBox(int r, int c)
@@ -103,6 +169,16 @@ namespace Sudoku
                 box[i] = _cellBoxArr[boxIndex][i].getCell();
             }
             return box;
+        }
+
+        private int[][] getBoxNotes(int boxIndex)
+        {
+            int[][] boxNotes = new int[9][];
+            for (int i = 0; i < 9; i++)
+            {
+                boxNotes[i] = _cellBoxArr[boxIndex][i].getNotes();
+            }
+            return boxNotes;
         }
 
         private void getCellRowArr()

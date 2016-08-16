@@ -42,6 +42,7 @@ namespace Sudoku
                     setNotesNakedPair();
                     setCells();
                 }
+                _sudoku.printPuzzle();
                 //if (!_hasChanged)
                 //{
                 //    Console.WriteLine("Hidden Single");
@@ -151,6 +152,8 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findLockedCandidates(_cellBoxArr[i], i);
+                findLockedCandidatesRow(_cellRowArr[i], i);
+                findLockedCandidatesCol(_cellColArr[i], i);
             }
         }
 
@@ -214,6 +217,74 @@ namespace Sudoku
                             if (!((r == baseRow) || (r == baseRow + 1) || (r == baseRow + 2)))
                             {
                                 _sudokuCells[r][baseCol + i].deleteNote(num);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void findLockedCandidatesRow(SudokuCell[] cellArr, int rowNum)
+        {
+            int[][] notes = getNotes(cellArr);
+            int baseRow = rowNum / 3 * 3;
+
+            int[][] parts = new int[3][];
+            for (int i = 0; i < 3; i++)
+            {
+                int index = i * 3;
+                parts[i] = notes[index].Concat(notes[index + 1].Concat(notes[index + 2])).Distinct().Except(new int[] { 0 }).ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = parts[i].Except(parts[(i + 1) % 3].Concat(parts[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    int baseCol = i * 3;
+                    foreach (int num in uniqueArr)
+                    {
+                        for(int r = baseRow; r < baseRow + 2; r++)
+                        {
+                            if(r != rowNum)
+                            {
+                                _sudokuCells[r][baseCol].deleteNote(num);
+                                _sudokuCells[r][baseCol + 1].deleteNote(num);
+                                _sudokuCells[r][baseCol + 2].deleteNote(num);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void findLockedCandidatesCol(SudokuCell[] cellArr, int colNum)
+        {
+            int[][] notes = getNotes(cellArr);
+            int baseCol = colNum / 3 * 3;
+
+            int[][] parts = new int[3][];
+            for (int i = 0; i < 3; i++)
+            {
+                int index = i * 3;
+                parts[i] = notes[index].Concat(notes[index + 1].Concat(notes[index + 2])).Distinct().Except(new int[] { 0 }).ToArray();
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                int[] uniqueArr = parts[i].Except(parts[(i + 1) % 3].Concat(parts[(i + 2) % 3])).ToArray();
+                if (uniqueArr.Count() != 0)
+                {
+                    int baseRow = i * 3;
+                    foreach (int num in uniqueArr)
+                    {
+                        for (int c = baseCol; c < baseCol + 2; c++)
+                        {
+                            if (c != colNum)
+                            {
+                                _sudokuCells[baseRow][c].deleteNote(num);
+                                _sudokuCells[baseRow + 1][c].deleteNote(num);
+                                _sudokuCells[baseRow + 2][c].deleteNote(num);
                             }
                         }
                     }

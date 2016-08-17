@@ -39,10 +39,13 @@ namespace Sudoku
                 {
                     setNotesHiddenSingles();
                     setNotesLockedCandidates();
+                    _sudoku.printNotes();
                     setNotesNakedPair();
+                    setNotesHiddenPair();
                     setCells();
                 }
                 _sudoku.printPuzzle();
+
                 //if (!_hasChanged)
                 //{
                 //    Console.WriteLine("Hidden Single");
@@ -61,7 +64,7 @@ namespace Sudoku
                 //    Console.WriteLine("Naked Pair");
                 //    setNotesNakedPair();
                 //    setCells();
-                //    //_sudoku.printNotes();
+                //    
                 //}
             }
         }
@@ -244,7 +247,7 @@ namespace Sudoku
                     int baseCol = i * 3;
                     foreach (int num in uniqueArr)
                     {
-                        for(int r = baseRow; r < baseRow + 2; r++)
+                        for(int r = baseRow; r < baseRow + 3; r++)
                         {
                             if(r != rowNum)
                             {
@@ -278,7 +281,7 @@ namespace Sudoku
                     int baseRow = i * 3;
                     foreach (int num in uniqueArr)
                     {
-                        for (int c = baseCol; c < baseCol + 2; c++)
+                        for (int c = baseCol; c < baseCol + 3; c++)
                         {
                             if (c != colNum)
                             {
@@ -324,6 +327,67 @@ namespace Sudoku
                                     }
                                 }
                             }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void setNotesHiddenPair()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                findHiddenPair(_cellRowArr[i]);
+                findHiddenPair(_cellColArr[i]);
+                findHiddenPair(_cellBoxArr[i]);
+            }
+        }
+
+        private void findHiddenPair(SudokuCell[] cellArr)
+        {
+            int[][] notes = getNotes(cellArr);
+
+            var emptyCellCount = notes.Where(i => i[0] != 0).Count();
+            if(emptyCellCount < 5)
+            {
+                return;
+            }
+
+            int[] allNotes = notes.SelectMany(i => i).Where(n => n != 0).OrderBy(n => n).ToArray();
+            int[] doubles = allNotes.GroupBy(e => e).Where(e => e.Count() == 2).Select(e => e.First()).ToArray();
+
+            if(doubles.Count() < 2)
+            {
+                return;
+            }
+
+            int[][] possiblePairs = genSeq(doubles, 2);
+
+            foreach(int[] pair in possiblePairs)
+            {
+                for(int i = 0; i < 8; i++)
+                {
+                    bool isFound = false;
+                    if (notes[i].Contains(pair[0]) && notes[i].Contains(pair[1]))
+                    {
+                        for(int j = i + 1; j < 9; j++)
+                        {
+                            if(notes[j].Contains(pair[0]) && notes[j].Contains(pair[1]))
+                            {
+                                isFound = true;
+                                cellArr[i].deleteAllNotes();
+                                cellArr[j].deleteAllNotes();
+                                foreach(int num in pair)
+                                {
+                                    cellArr[i].setNote(num);
+                                    cellArr[j].setNote(num);
+                                }
+                                break;
+                            }
+                        }
+                        if (isFound)
+                        {
                             break;
                         }
                     }
@@ -457,6 +521,38 @@ namespace Sudoku
                     arrIndex++;
                 }
             }
+        }
+
+        private int[][] genSeq(int[] numArr, int desiredLength)
+        {
+            List<int[]> allCombi = new List<int[]>();
+
+            for (int i = 0; i < numArr.Length - (desiredLength - 1); i++)
+            {
+                for(int j = i + 1; j < numArr.Length - (desiredLength - 2); j++)
+                {
+                    if(desiredLength == 3)
+                    {
+                        for(int k = j + 1; k < numArr.Length; k++)
+                        {
+                            int[] combi = new int[3];
+                            combi[0] = numArr[i];
+                            combi[1] = numArr[j];
+                            combi[2] = numArr[k];
+                            allCombi.Add(combi);
+                        }
+                    }
+                    else
+                    {
+                        int[] combi = new int[2];
+                        combi[0] = numArr[i];
+                        combi[1] = numArr[j];
+                        allCombi.Add(combi);
+                    }
+                }
+            }
+
+            return allCombi.ToArray();
         }
     }
 }

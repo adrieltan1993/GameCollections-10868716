@@ -34,38 +34,31 @@ namespace Sudoku
                 _hasChanged = false;
                 updateNotes();
                 setCells();
-
-                if (!_hasChanged)
+                if(!_hasChanged)
                 {
                     setNotesHiddenSingles();
+                    setCells();
+                }
+                if (!_hasChanged)
+                {
                     setNotesLockedCandidates();
-                    _sudoku.printNotes();
+                    setCells();
+                }
+                if(!_hasChanged)
+                {
                     setNotesNakedPair();
+                    setCells();
+                }
+                if(!_hasChanged)
+                {
                     setNotesHiddenPair();
                     setCells();
                 }
-                _sudoku.printPuzzle();
-
-                //if (!_hasChanged)
-                //{
-                //    Console.WriteLine("Hidden Single");
-                //    setNotesHiddenSingles();
-                //    setCells();
-                //}
-                //if (!_hasChanged)
-                //{
-                //    Console.WriteLine("Locked Candidate");
-                //    setNotesLockedCandidates();
-                //    setCells();
-                //}
-                //if (!_hasChanged)
-                //{
-                //    //_sudoku.printNotes();
-                //    Console.WriteLine("Naked Pair");
-                //    setNotesNakedPair();
-                //    setCells();
-                //    
-                //}
+                if (!_hasChanged)
+                {
+                    setNotesNakedTriple();
+                    setCells();
+                }
             }
         }
 
@@ -98,15 +91,18 @@ namespace Sudoku
             {
                 for (int c = 0; c < 9; c++)
                 {
-                    int[] row = getRow(r);
-                    int[] col = getCol(c);
-                    int[] box = getBox(r, c);
-
-                    var line = row.Concat(col.Concat(box)).Distinct().Except(new int[] { 0 }).ToArray();
-
-                    foreach (int num in line)
+                    if(_sudokuCells[r][c].getCell() == 0)
                     {
-                        _sudokuCells[r][c].deleteNote(num);
+                        int[] row = getRow(r);
+                        int[] col = getCol(c);
+                        int[] box = getBox(r, c);
+
+                        var line = row.Concat(col.Concat(box)).Distinct().Except(new int[] { 0 }).ToArray();
+
+                        foreach (int num in line)
+                        {
+                            _sudokuCells[r][c].deleteNote(num);
+                        }
                     }
                 }
             }
@@ -395,6 +391,73 @@ namespace Sudoku
             }
         }
 
+        private void setNotesNakedTriple()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                findNakedTriple(_cellRowArr[i]);
+                findNakedTriple(_cellColArr[i]);
+                findNakedTriple(_cellBoxArr[i]);
+            }
+        }
+
+        private void findNakedTriple(SudokuCell[] cellArr)
+        {
+            int[][] notes = getNotes(cellArr);
+
+            var emptyCellCount = notes.Where(i => i[0] != 0).Count();
+            if (emptyCellCount < 6)
+            {
+                return;
+            }
+
+            var possibleCells = cellArr.Where(cell => ((cell.getCell() == 0) && (cell.getNotes().Count() <= 3))).ToArray();
+
+            if(possibleCells.Count() < 3)
+            {
+                return;
+            }
+
+            int[][] possibleCellsNotes = getNotes(possibleCells);
+            int[][] possibleTriples = genSeq(possibleCellsNotes.SelectMany(n => n).Distinct().Except(new int[] { 0 }).ToArray(), 3);
+
+            foreach (int[] triple in possibleTriples)
+            {
+                int count = 0;
+                SudokuCell[] cell = new SudokuCell[3];
+                for(int i = 0; i < possibleCellsNotes.Count(); i++)
+                {
+                    bool notFound = false;
+                    foreach (int note in possibleCellsNotes[i])
+                    {
+                        if(!triple.Contains(note))
+                        {
+                            notFound = true;
+                            break;
+                        }
+                    }
+                    if(!notFound)
+                    {
+                        cell[count] = possibleCells[i];
+                        count++;
+                    }
+                }
+                if(count == 3)
+                {
+                    foreach(SudokuCell c in cellArr)
+                    {
+                        if(!(c.Equals(cell[0]) || c.Equals(cell[1]) || c.Equals(cell[2])))
+                        {
+                            foreach(int num in triple)
+                            {
+                                c.deleteNote(num);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void setCells()
         {
             for (int r = 0; r < 9; r++)
@@ -474,8 +537,8 @@ namespace Sudoku
 
         private int[][] getNotes(SudokuCell[] cellArr)
         {
-            int[][] notes = new int[9][];
-            for (int i = 0; i < 9; i++)
+            int[][] notes = new int[cellArr.Count()][];
+            for (int i = 0; i < cellArr.Count(); i++)
             {
                 notes[i] = cellArr[i].getNotes();
             }

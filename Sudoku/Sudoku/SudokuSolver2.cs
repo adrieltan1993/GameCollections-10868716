@@ -8,12 +8,21 @@ namespace Sudoku
 {
     class SudokuSolver2
     {
+        const String NAKED_SINGLE_MESSAGE = "Naked Single";
+        const String HIDDEN_SINGLE_MESSAGE = "Hidden Single";
+        const String HIDDEN_PAIR_MESSAGE = "Hidden Pair";
+        const String NAKED_PAIR_MESSAGE = "Naked Pair";
+        const String NAKED_TRIPLE_MESSAGE = "Naked Triple";
+        const String LOCKED_CANDIDATE_MESSAGE = "Locked Candidate";
+
+
         private SudokuPuzzle _sudoku;
         SudokuCell[][] _sudokuCells;
         SudokuCell[][] _cellRowArr = new SudokuCell[9][];
         SudokuCell[][] _cellColArr = new SudokuCell[9][];
         SudokuCell[][] _cellBoxArr = new SudokuCell[9][];
         private bool _hasChanged;
+        private bool _isOneByOne = false;
 
         public SudokuSolver2(SudokuPuzzle sudoku, SudokuCell[][] sudokuCells)
         {
@@ -23,41 +32,78 @@ namespace Sudoku
             getCellRowArr();
             getCellColArr();
             getCellBoxArr();
+
+            setNotes();
         }
 
-        public void solve()
+        public void solve(bool isOneByOne)
         {
+            _isOneByOne = isOneByOne;
             setNotes();
-            setCells();
             while (!_sudoku.checkCompleted())
             {
                 _hasChanged = false;
                 updateNotes();
                 setCells();
-                if(!_hasChanged)
+                if (_isOneByOne && _hasChanged)
+                {
+                    Console.WriteLine(NAKED_SINGLE_MESSAGE);
+                    break;
+                }
+                if (_isOneByOne && _hasChanged)
+                {
+                    Console.WriteLine(HIDDEN_SINGLE_MESSAGE);
+                    break;
+                }
+                if (!_hasChanged)
                 {
                     setNotesHiddenSingles();
                     setCells();
+                    if(_isOneByOne && _hasChanged)
+                    {
+                        Console.WriteLine(HIDDEN_SINGLE_MESSAGE);
+                        break;
+                    }
                 }
                 if (!_hasChanged)
                 {
                     setNotesLockedCandidates();
                     setCells();
+                    if (_isOneByOne && _hasChanged)
+                    {
+                        Console.WriteLine(LOCKED_CANDIDATE_MESSAGE);
+                        break;
+                    }
                 }
                 if(!_hasChanged)
                 {
                     setNotesNakedPair();
                     setCells();
+                    if (_isOneByOne && _hasChanged)
+                    {
+                        Console.WriteLine(NAKED_PAIR_MESSAGE);
+                        break;
+                    }
                 }
                 if(!_hasChanged)
                 {
                     setNotesHiddenPair();
                     setCells();
+                    if (_isOneByOne && _hasChanged)
+                    {
+                        Console.WriteLine(HIDDEN_PAIR_MESSAGE);
+                        break;
+                    }
                 }
                 if (!_hasChanged)
                 {
                     setNotesNakedTriple();
                     setCells();
+                    if (_isOneByOne && _hasChanged)
+                    {
+                        Console.WriteLine(NAKED_TRIPLE_MESSAGE);
+                        break;
+                    }
                 }
             }
         }
@@ -464,14 +510,27 @@ namespace Sudoku
             {
                 for (int c = 0; c < 9; c++)
                 {
-                    int[] notes = _sudokuCells[r][c].getNotes();
-                    if ((notes.Length == 1) && (notes[0] != 0))
+                    if(_sudokuCells[r][c].getCell() == 0)
                     {
-                        _sudokuCells[r][c].setCell(notes[0]);
-                        _hasChanged = true;
+                        int[] notes = _sudokuCells[r][c].getNotes();
+                        if ((notes.Length == 1))
+                        {
+                            _sudokuCells[r][c].setCell(notes[0]);
+                            _hasChanged = true;
+                            if (_isOneByOne)
+                            {
+                                Console.WriteLine("Row {0}, Column {1}, Digit {2}", r + 1, c + 1, notes[0]);
+                                break;
+                            }
+                        }
                     }
                 }
+                if (_isOneByOne && _hasChanged)
+                {
+                    break;
+                }
             }
+
         }
 
         private int[] getRow(int r)

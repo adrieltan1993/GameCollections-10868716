@@ -36,6 +36,10 @@ namespace Sudoku
             {
                 _puzzle[row - 1][col - 1].setCell(digit);
             }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
         }
 
         public int getCell(int row, int col)
@@ -87,6 +91,7 @@ namespace Sudoku
 
         public void printPuzzle()
         {
+            Console.WriteLine();
             for (int r = 1; r <= 9; r++)
             {
                 for (int c = 1; c <= 9; c++)
@@ -140,13 +145,13 @@ namespace Sudoku
             return puzzle;
         }
 
-        public void solve()
+        public void solve(bool isOneByOne)
         {
             //SudokuSolver sv = new SudokuSolver(this);
             //sv.solve();
 
             SudokuSolver2 sv = new SudokuSolver2(this, _puzzle);
-            sv.solve();
+            sv.solve(isOneByOne);
         }
     }
 }

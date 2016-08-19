@@ -41,11 +41,11 @@ namespace Sudoku
         public void solve(bool isOneByOne)
         {
             _isOneByOne = isOneByOne;
-            _foundHint = false;
             setNotes();
             while (!_sudoku.checkCompleted())
             {
                 _hasChanged = false;
+                _foundHint = false;
                 updateNotes();
                 setCells();
                 if (_isOneByOne && _hasChanged)
@@ -224,12 +224,15 @@ namespace Sudoku
                         {
                             if (!((c == baseCol) || (c == baseCol + 1) || (c == baseCol + 2)))
                             {
-                                _sudokuCells[baseRow + i][c].deleteNote(num);
+                                if (_sudokuCells[baseRow + i][c].getCell() == 0 && _sudokuCells[baseRow + i][c].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[baseRow + i][c].deleteNote(num);
+                                    _foundHint = true;
+                                }
                             }
                         }
-                        if (_isOneByOne)
+                        if (_isOneByOne && _foundHint)
                         {
-                            _foundHint = true;
                             Console.WriteLine(LOCKED_CANDIDATE_ROW_MESSAGE);
                             return;
                         }
@@ -259,12 +262,15 @@ namespace Sudoku
                         {
                             if (!((r == baseRow) || (r == baseRow + 1) || (r == baseRow + 2)))
                             {
-                                _sudokuCells[r][baseCol + i].deleteNote(num);
+                                if (_sudokuCells[r][baseCol + i].getCell() == 0 && _sudokuCells[r][baseCol + i].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[r][baseCol + i].deleteNote(num);
+                                    _foundHint = true;
+                                }
                             }
                         }
-                        if (_isOneByOne)
+                        if (_isOneByOne && _foundHint)
                         {
-                            _foundHint = true;
                             Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
                             return;
                         }
@@ -297,15 +303,26 @@ namespace Sudoku
                         {
                             if(r != rowNum)
                             {
-                                _sudokuCells[r][baseCol].deleteNote(num);
-                                _sudokuCells[r][baseCol + 1].deleteNote(num);
-                                _sudokuCells[r][baseCol + 2].deleteNote(num);
+                                if (_sudokuCells[r][baseCol].getCell() == 0 && _sudokuCells[r][baseCol].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[r][baseCol].deleteNote(num);
+                                    _foundHint = true;
+                                }
+                                if (_sudokuCells[r][baseCol + 1].getCell() == 0 && _sudokuCells[r][baseCol + 1].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[r][baseCol + 1].deleteNote(num);
+                                    _foundHint = true;
+                                }
+                                if (_sudokuCells[r][baseCol + 2].getCell() == 0 && _sudokuCells[r][baseCol + 2].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[r][baseCol + 2].deleteNote(num);
+                                    _foundHint = true;
+                                }
                             }
                         }
-                        if (_isOneByOne)
+                        if (_isOneByOne && _foundHint)
                         {
-                            _foundHint = true;
-                            Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
+                            Console.WriteLine(LOCKED_CANDIDATE_ROW_MESSAGE);
                             return;
                         }
                     }
@@ -337,14 +354,25 @@ namespace Sudoku
                         {
                             if (c != colNum)
                             {
-                                _sudokuCells[baseRow][c].deleteNote(num);
-                                _sudokuCells[baseRow + 1][c].deleteNote(num);
-                                _sudokuCells[baseRow + 2][c].deleteNote(num);
+                                if(_sudokuCells[baseRow][c].getCell() == 0 && _sudokuCells[baseRow][c].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[baseRow][c].deleteNote(num);
+                                    _foundHint = true;
+                                }
+                                if (_sudokuCells[baseRow + 1][c].getCell() == 0 && _sudokuCells[baseRow + 1][c].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[baseRow + 1][c].deleteNote(num);
+                                    _foundHint = true;
+                                }
+                                if (_sudokuCells[baseRow + 2][c].getCell() == 0 && _sudokuCells[baseRow + 2][c].getNotes().Contains(num))
+                                {
+                                    _sudokuCells[baseRow + 2][c].deleteNote(num);
+                                    _foundHint = true;
+                                }
                             }
                         }
-                        if (_isOneByOne)
+                        if (_isOneByOne && _foundHint)
                         {
-                            _foundHint = true;
                             Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
                             return;
                         }
@@ -384,13 +412,16 @@ namespace Sudoku
                                 {
                                     foreach (int num in notes[i])
                                     {
-                                        cellArr[index].deleteNote(num);
+                                        if(cellArr[index].getCell() == 0 && cellArr[index].getNotes().Contains(num))
+                                        {
+                                            cellArr[index].deleteNote(num);
+                                            _foundHint = true;
+                                        }
                                     }
                                 }
                             }
-                            if (_isOneByOne)
+                            if (_isOneByOne && _foundHint)
                             {
-                                _foundHint = true;
                                 Console.WriteLine(NAKED_PAIR_MESSAGE);
                             }
                             return;
@@ -525,14 +556,17 @@ namespace Sudoku
                         {
                             foreach(int num in triple)
                             {
-                                c.deleteNote(num);
+                                if(c.getCell() == 0 && c.getNotes().Contains(num))
+                                {
+                                    c.deleteNote(num);
+                                    _foundHint = true;
+                                }
                             }
                         }
                     }
-                    if (_isOneByOne)
+                    if (_isOneByOne && _foundHint)
                     {
                         Console.WriteLine(NAKED_TRIPLE_MESSAGE);
-                        _foundHint = true;
                         return;
                     }
                 }

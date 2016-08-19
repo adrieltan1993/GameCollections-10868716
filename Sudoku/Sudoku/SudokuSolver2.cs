@@ -13,7 +13,8 @@ namespace Sudoku
         const String HIDDEN_PAIR_MESSAGE = "Hidden Pair";
         const String NAKED_PAIR_MESSAGE = "Naked Pair";
         const String NAKED_TRIPLE_MESSAGE = "Naked Triple";
-        const String LOCKED_CANDIDATE_MESSAGE = "Locked Candidate";
+        const String LOCKED_CANDIDATE_ROW_MESSAGE = "Locked Candidate R";
+        const String LOCKED_CANDIDATE_COL_MESSAGE = "Locked Candidate C";
 
 
         private SudokuPuzzle _sudoku;
@@ -23,6 +24,7 @@ namespace Sudoku
         SudokuCell[][] _cellBoxArr = new SudokuCell[9][];
         private bool _hasChanged;
         private bool _isOneByOne = false;
+        private bool _foundHint;
 
         public SudokuSolver2(SudokuPuzzle sudoku, SudokuCell[][] sudokuCells)
         {
@@ -39,6 +41,7 @@ namespace Sudoku
         public void solve(bool isOneByOne)
         {
             _isOneByOne = isOneByOne;
+            _foundHint = false;
             setNotes();
             while (!_sudoku.checkCompleted())
             {
@@ -48,62 +51,35 @@ namespace Sudoku
                 if (_isOneByOne && _hasChanged)
                 {
                     Console.WriteLine(NAKED_SINGLE_MESSAGE);
-                    break;
-                }
-                if (_isOneByOne && _hasChanged)
-                {
-                    Console.WriteLine(HIDDEN_SINGLE_MESSAGE);
-                    break;
                 }
                 if (!_hasChanged)
                 {
                     setNotesHiddenSingles();
                     setCells();
-                    if(_isOneByOne && _hasChanged)
-                    {
-                        Console.WriteLine(HIDDEN_SINGLE_MESSAGE);
-                        break;
-                    }
                 }
                 if (!_hasChanged)
                 {
                     setNotesLockedCandidates();
                     setCells();
-                    if (_isOneByOne && _hasChanged)
-                    {
-                        Console.WriteLine(LOCKED_CANDIDATE_MESSAGE);
-                        break;
-                    }
                 }
                 if(!_hasChanged)
                 {
                     setNotesNakedPair();
                     setCells();
-                    if (_isOneByOne && _hasChanged)
-                    {
-                        Console.WriteLine(NAKED_PAIR_MESSAGE);
-                        break;
-                    }
                 }
                 if(!_hasChanged)
                 {
                     setNotesHiddenPair();
                     setCells();
-                    if (_isOneByOne && _hasChanged)
-                    {
-                        Console.WriteLine(HIDDEN_PAIR_MESSAGE);
-                        break;
-                    }
                 }
                 if (!_hasChanged)
                 {
                     setNotesNakedTriple();
                     setCells();
-                    if (_isOneByOne && _hasChanged)
-                    {
-                        Console.WriteLine(NAKED_TRIPLE_MESSAGE);
-                        break;
-                    }
+                }
+                if(_isOneByOne && _hasChanged)
+                {
+                    return;
                 }
             }
         }
@@ -159,8 +135,11 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findHiddenSingle(_cellRowArr[i], i);
+                if(_foundHint) { return; }
                 findHiddenSingle(_cellColArr[i], i);
+                if (_foundHint) { return; }
                 findHiddenSingle(_cellBoxArr[i], i);
+                if (_foundHint) { return; }
             }
         }
 
@@ -185,8 +164,15 @@ namespace Sudoku
                         {
                             cellArr[i].deleteAllNotes();
                             cellArr[i].setNote(num);
+                            if (_isOneByOne)
+                            {
+                                Console.WriteLine(HIDDEN_SINGLE_MESSAGE);
+                                _foundHint = true;
+                                return;
+                            }
                             break;
                         }
+                        
                     }
                 }
             }
@@ -197,8 +183,11 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findLockedCandidates(_cellBoxArr[i], i);
+                if (_foundHint) { return; }
                 findLockedCandidatesRow(_cellRowArr[i], i);
+                if (_foundHint) { return; }
                 findLockedCandidatesCol(_cellColArr[i], i);
+                if (_foundHint) { return; }
             }
         }
 
@@ -209,7 +198,9 @@ namespace Sudoku
             int baseCol = boxNum % 3 * 3;
 
             findLockedCandidatesHorizontal(notes, baseRow, baseCol);
+            if (_foundHint) { return; }
             findLockedCandidatesVertical(notes, baseRow, baseCol);
+            if (_foundHint) { return; }
         }
 
         private void findLockedCandidatesHorizontal(int[][] notes, int baseRow, int baseCol)
@@ -236,7 +227,14 @@ namespace Sudoku
                                 _sudokuCells[baseRow + i][c].deleteNote(num);
                             }
                         }
+                        if (_isOneByOne)
+                        {
+                            _foundHint = true;
+                            Console.WriteLine(LOCKED_CANDIDATE_ROW_MESSAGE);
+                            return;
+                        }
                     }
+                    
                 }
             }
         }
@@ -263,6 +261,12 @@ namespace Sudoku
                             {
                                 _sudokuCells[r][baseCol + i].deleteNote(num);
                             }
+                        }
+                        if (_isOneByOne)
+                        {
+                            _foundHint = true;
+                            Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
+                            return;
                         }
                     }
                 }
@@ -298,6 +302,12 @@ namespace Sudoku
                                 _sudokuCells[r][baseCol + 2].deleteNote(num);
                             }
                         }
+                        if (_isOneByOne)
+                        {
+                            _foundHint = true;
+                            Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
+                            return;
+                        }
                     }
                 }
             }
@@ -332,6 +342,12 @@ namespace Sudoku
                                 _sudokuCells[baseRow + 2][c].deleteNote(num);
                             }
                         }
+                        if (_isOneByOne)
+                        {
+                            _foundHint = true;
+                            Console.WriteLine(LOCKED_CANDIDATE_COL_MESSAGE);
+                            return;
+                        }
                     }
                 }
             }
@@ -342,8 +358,11 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findNakedPair(_cellRowArr[i]);
+                if (_foundHint) { return; }
                 findNakedPair(_cellColArr[i]);
+                if (_foundHint) { return; }
                 findNakedPair(_cellBoxArr[i]);
+                if (_foundHint) { return; }
             }
         }
 
@@ -369,7 +388,12 @@ namespace Sudoku
                                     }
                                 }
                             }
-                            break;
+                            if (_isOneByOne)
+                            {
+                                _foundHint = true;
+                                Console.WriteLine(NAKED_PAIR_MESSAGE);
+                            }
+                            return;
                         }
                     }
                 }
@@ -381,8 +405,11 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findHiddenPair(_cellRowArr[i]);
+                if (_foundHint) { return; }
                 findHiddenPair(_cellColArr[i]);
+                if (_foundHint) { return; }
                 findHiddenPair(_cellBoxArr[i]);
+                if (_foundHint) { return; }
             }
         }
 
@@ -410,14 +437,12 @@ namespace Sudoku
             {
                 for(int i = 0; i < 8; i++)
                 {
-                    bool isFound = false;
                     if (notes[i].Contains(pair[0]) && notes[i].Contains(pair[1]))
                     {
                         for(int j = i + 1; j < 9; j++)
                         {
                             if(notes[j].Contains(pair[0]) && notes[j].Contains(pair[1]))
                             {
-                                isFound = true;
                                 cellArr[i].deleteAllNotes();
                                 cellArr[j].deleteAllNotes();
                                 foreach(int num in pair)
@@ -425,12 +450,13 @@ namespace Sudoku
                                     cellArr[i].setNote(num);
                                     cellArr[j].setNote(num);
                                 }
-                                break;
+                                if (_isOneByOne)
+                                {
+                                    _foundHint = true;
+                                    Console.WriteLine(HIDDEN_PAIR_MESSAGE);
+                                }
+                                return;
                             }
-                        }
-                        if (isFound)
-                        {
-                            break;
                         }
                     }
                 }
@@ -442,8 +468,11 @@ namespace Sudoku
             for (int i = 0; i < 9; i++)
             {
                 findNakedTriple(_cellRowArr[i]);
+                if (_foundHint) { return; }
                 findNakedTriple(_cellColArr[i]);
+                if (_foundHint) { return; }
                 findNakedTriple(_cellBoxArr[i]);
+                if (_foundHint) { return; }
             }
         }
 
@@ -500,6 +529,12 @@ namespace Sudoku
                             }
                         }
                     }
+                    if (_isOneByOne)
+                    {
+                        Console.WriteLine(NAKED_TRIPLE_MESSAGE);
+                        _foundHint = true;
+                        return;
+                    }
                 }
             }
         }
@@ -519,15 +554,11 @@ namespace Sudoku
                             _hasChanged = true;
                             if (_isOneByOne)
                             {
-                                Console.WriteLine("Row {0}, Column {1}, Digit {2}", r + 1, c + 1, notes[0]);
-                                break;
+                                Console.WriteLine("Digit {0} set in Cell[{1}, {2}]", notes[0], r + 1, c + 1);
+                                return;
                             }
                         }
                     }
-                }
-                if (_isOneByOne && _hasChanged)
-                {
-                    break;
                 }
             }
 

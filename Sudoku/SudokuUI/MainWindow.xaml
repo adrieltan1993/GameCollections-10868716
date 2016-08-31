@@ -124,9 +124,22 @@
         <TextBox Grid.Row="8" Grid.Column="6" MaxLines="1" MaxLength="1" TextAlignment="Center" />
         <TextBox Grid.Row="8" Grid.Column="7" MaxLines="1" MaxLength="1" TextAlignment="Center" />
         <TextBox Grid.Row="8" Grid.Column="8" MaxLines="1" MaxLength="1" TextAlignment="Center" />
+        
         <Button x:Name="buttonSolve" Grid.ColumnSpan="2" Content="Solve" HorizontalAlignment="Left" Height="23" Margin="0,49,0,-42" Grid.Row="9" VerticalAlignment="Top" Width="47" Click="buttonSolve_Click"/>
         <Button x:Name="buttonSet" Grid.ColumnSpan="2" Content="Set" Height="23" Margin="0,49,0,-42" Grid.Row="9" VerticalAlignment="Top" Click="buttonSet_Click" Grid.Column="2" HorizontalAlignment="Left" Width="47"/>
         <Button x:Name="buttonClear" Grid.ColumnSpan="2" Content="Clear" Height="23" Margin="0,49,0,-42" Grid.Row="9" VerticalAlignment="Top" Click="buttonClear_Click" Grid.Column="4" HorizontalAlignment="Left" Width="47"/>
         <Button x:Name="buttonHint" Grid.ColumnSpan="2" Content="Hint" Height="23" Margin="0,49,0,-42" Grid.Row="9" VerticalAlignment="Top" Click="buttonHint_Click" Grid.Column="6" HorizontalAlignment="Left" Width="47"/>
+        
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Column="3"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Column="6"/>
+
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="3"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="3" Grid.Column="3"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="3" Grid.Column="6"/>
+
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="6"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="6" Grid.Column="3"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="90" Grid.RowSpan="3" VerticalAlignment="Top" Width="90" Grid.Row="6" Grid.Column="6"/>
     </Grid>
 </Window>

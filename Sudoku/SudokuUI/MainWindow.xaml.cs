@@ -35,7 +35,6 @@ namespace SudokuUI
             }
             _puzzle.solve(false);
 
-
             printPuzzle();
         }
 
@@ -48,7 +47,9 @@ namespace SudokuUI
                 {
                     if (puzzleValues[r][c] != 0)
                     {
-                        var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                        var gridElements = gridSudoku.Children.Cast<UIElement>().Where(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                        //var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                        var gridElement = gridElements.Where(i => i.GetType() == typeof(TextBox)).Cast<TextBox>().First();
                         gridElement.Text = puzzleValues[r][c].ToString();
                     }
                 }
@@ -64,8 +65,8 @@ namespace SudokuUI
                 for (int c = 0; c < 9; c++)
                 {
                     var gridElements = gridSudoku.Children.Cast<UIElement>().Where(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
-                    var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
-                    //var gridElement = gridElements.Where(i => i.GetType() == typeof(TextBox)).Cast<TextBox>().First();
+                    //var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                    var gridElement = gridElements.Where(i => i.GetType() == typeof(TextBox)).Cast<TextBox>().First();
                     if (gridElement.Text != "")
                     {
                         inputSudoku[r][c] = Int32.Parse(gridElement.Text);
@@ -88,7 +89,9 @@ namespace SudokuUI
             {
                 for (int c = 0; c < 9; c++)
                 {
-                    var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                    var gridElements = gridSudoku.Children.Cast<UIElement>().Where(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                    //var gridElement = gridSudoku.Children.Cast<TextBox>().First(i => Grid.GetColumn(i) == r && Grid.GetRow(i) == c);
+                    var gridElement = gridElements.Where(i => i.GetType() == typeof(TextBox)).Cast<TextBox>().First();
                     gridElement.Text = "";
                     gridElement.IsReadOnly = false;
                     gridElement.FontWeight = FontWeights.Normal;
@@ -99,7 +102,12 @@ namespace SudokuUI
 
         private void buttonHint_Click(object sender, RoutedEventArgs e)
         {
+            if (_puzzle == null)
+            {
+                buttonSet_Click(sender, e);
+            }
             _puzzle.solve(true);
+
             printPuzzle();
         }
     }
